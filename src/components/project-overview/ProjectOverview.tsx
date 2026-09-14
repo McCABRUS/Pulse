@@ -8,17 +8,17 @@ type ProjectOverviewProps = {
 export function ProjectOverview({ project }: ProjectOverviewProps) {
   if (!project) {
     return (
-      <section>
+      <main>
         <h1>Project not found</h1>
         <p>The requested project could not be found.</p>
-      </section>
+      </main>
     );
   }
 
   const { latestAudit } = project;
 
   return (
-    <section>
+    <main>
       <h1>{project.name}</h1>
 
       {latestAudit && (
@@ -52,6 +52,6 @@ export function ProjectOverview({ project }: ProjectOverviewProps) {
           </a>
         </>
       )}
-    </section>
+    </main>
   );
 }
