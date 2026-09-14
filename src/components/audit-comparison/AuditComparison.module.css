@@ -1,0 +1,108 @@
+.wrapper {
+  width: min(100%, var(--content-max-width));
+  margin: 0 auto;
+  padding: var(--space-10) var(--page-padding) var(--space-16);
+}
+
+.title {
+  margin-bottom: var(--space-6);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-3xl);
+  line-height: var(--line-height-tight);
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.table {
+  width: 100%;
+  min-width: 680px;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+}
+
+.table th {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.table tbody th {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+}
+
+.table tbody td {
+  color: var(--color-text-primary);
+}
+
+.table tbody tr:last-child th,
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.status {
+  display: inline-flex;
+  width: fit-content;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+}
+
+.improved {
+  color: var(--color-success);
+  background: var(--color-success-bg);
+}
+
+.regressed {
+  color: var(--color-danger);
+  background: var(--color-danger-bg);
+}
+
+.unchanged {
+  color: var(--color-text-secondary);
+  background: var(--color-surface-muted);
+}
+
+.deltaPositive {
+  color: var(--color-success);
+  font-weight: 700;
+}
+
+.deltaNegative {
+  color: var(--color-danger);
+  font-weight: 700;
+}
+
+.deltaNeutral {
+  color: var(--color-text-secondary);
+  font-weight: 600;
+}
+
+@media (max-width: 720px) {
+  .wrapper {
+    padding-top: var(--space-8);
+  }
+
+  .title {
+    font-size: var(--font-size-2xl);
+  }
+
+  .table th,
+  .table td {
+    padding: var(--space-3) var(--space-4);
+  }
+}

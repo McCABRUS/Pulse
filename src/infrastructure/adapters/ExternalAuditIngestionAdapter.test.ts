@@ -41,26 +41,31 @@ describe("ExternalAuditIngestionAdapter", () => {
       id: "external-001",
       projectId: "project-1",
       createdAt: "2026-09-13T14:32:00Z",
-      overallScore: 92,
+
+      overallScore: 93,
+
       performance: {
         lcp: 1800,
         cls: 0.02,
         inp: 120,
-        score: 94,
+        score: 100,
       },
+
       accessibility: {
         critical: 0,
         serious: 1,
         moderate: 1,
         minor: 0,
-        score: 98,
+        score: 80,
       },
+
       apiHealth: {
         availability: 99.95,
         latency: 180,
         errorRate: 0.5,
-        score: 84,
+        score: 99,
       },
+
       findings: [],
     });
   });

@@ -13,3 +13,17 @@ test("displays the project overview", async ({ page }) => {
   await expect(page.getByText("84")).toBeVisible();
   await expect(page.getByText("September 13, 2026")).toBeVisible();
 });
+
+test("displays a not-found state for an unknown project", async ({ page }) => {
+  await page.goto("/projects/unknown-project");
+
+  await expect(
+    page.getByRole("heading", {
+      name: /project not found/i,
+    }),
+  ).toBeVisible();
+
+  await expect(
+    page.getByText("The requested project could not be found."),
+  ).toBeVisible();
+});

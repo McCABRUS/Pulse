@@ -1,38 +1,30 @@
 import type { Audit } from "@/domain/entities/Audit";
+import { createAudit } from "@/domain/services/createAudit";
+import { ApiHealthScoreStrategy } from "@/domain/services/ApiHealthScoreStrategy";
+import { AccessibilityScoreStrategy } from "@/domain/services/AccessibilityScoreStrategy";
+import { HealthScoreCalculator } from "@/domain/services/HealthScoreCalculator";
+import { PerformanceScoreStrategy } from "@/domain/services/PerformanceScoreStrategy";
 import type { ExternalAuditRecord } from "./ExternalAuditRecord";
+
+const calculator = new HealthScoreCalculator(
+  new PerformanceScoreStrategy(),
+  new AccessibilityScoreStrategy(),
+  new ApiHealthScoreStrategy(),
+);
 
 export class ExternalAuditAdapter {
   toDomain(record: ExternalAuditRecord): Audit {
-    return {
-      id: record.audit_id,
-      projectId: record.project_id,
-      createdAt: record.created_at,
-
-      overallScore: record.score.overall,
-
-      performance: {
-        lcp: record.metrics.performance.lcp,
-        cls: record.metrics.performance.cls,
-        inp: record.metrics.performance.inp,
-        score: record.score.performance,
+    return createAudit(
+      {
+        id: record.audit_id,
+        projectId: record.project_id,
+        createdAt: record.created_at,
+        performance: record.metrics.performance,
+        accessibility: record.metrics.accessibility,
+        apiHealth: record.metrics.apiHealth,
+        findings: [],
       },
-
-      accessibility: {
-        critical: record.metrics.accessibility.critical,
-        serious: record.metrics.accessibility.serious,
-        moderate: record.metrics.accessibility.moderate,
-        minor: record.metrics.accessibility.minor,
-        score: record.score.accessibility,
-      },
-
-      apiHealth: {
-        availability: record.metrics.apiHealth.availability,
-        latency: record.metrics.apiHealth.latency,
-        errorRate: record.metrics.apiHealth.errorRate,
-        score: record.score.api,
-      },
-
-      findings: [],
-    };
+      calculator,
+    );
   }
 }

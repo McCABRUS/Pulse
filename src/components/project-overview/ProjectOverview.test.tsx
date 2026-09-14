@@ -60,13 +60,15 @@ describe("ProjectOverview", () => {
   it("renders the latest audit date", () => {
     render(<ProjectOverview project={project} />);
 
-    expect(screen.getByText("September 13, 2026")).toBeInTheDocument();
+    expect(
+      screen.getByText(/Latest audit · September 13, 2026/i),
+    ).toBeInTheDocument();
   });
 
   it("provides a link to the latest audit", () => {
     render(<ProjectOverview project={project} />);
 
-    expect(screen.getByRole("link", { name: /latest audit/i })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /view audit/i })).toHaveAttribute(
       "href",
       "/projects/project-1/audits/audit-1",
     );
@@ -77,6 +79,39 @@ describe("ProjectOverview", () => {
 
     expect(
       screen.getByRole("heading", { name: /project not found/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("renders the project overview sections", () => {
+    render(<ProjectOverview project={project} />);
+
+    expect(
+      screen.getByRole("heading", { name: "Acme Commerce" }),
+    ).toBeInTheDocument();
+
+    expect(screen.getByText("Overall Health")).toBeInTheDocument();
+
+    expect(screen.getByText("Latest Audit")).toBeInTheDocument();
+
+    expect(screen.getAllByText("Excellent")).toHaveLength(2);
+
+    expect(screen.getByText("Good")).toBeInTheDocument();
+  });
+
+  it("renders an empty state when the project has no audits", () => {
+    const projectWithoutAudit = {
+      ...project,
+      latestAudit: null,
+    };
+
+    render(<ProjectOverview project={projectWithoutAudit} />);
+
+    expect(
+      screen.getByRole("heading", { name: /no audits yet/i }),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText("This project does not have an audit available."),
     ).toBeInTheDocument();
   });
 });

@@ -43,3 +43,8 @@ next-env.d.ts
 # Playwright
 /playwright-report/
 /test-results/
+
+# Lighthouse
+/lighthouse-production.json
+/lighthouse-baseline.json
+/lighthouse-production-baseline.json

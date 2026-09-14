@@ -1,0 +1,147 @@
+.page {
+  width: min(100%, var(--content-max-width));
+  margin: 0 auto;
+  padding: var(--space-10) var(--page-padding) var(--space-16);
+}
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-8);
+  margin-bottom: var(--space-10);
+}
+
+.eyebrow {
+  margin-bottom: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.header h1 {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-3xl);
+  line-height: var(--line-height-tight);
+}
+
+.auditMeta {
+  margin-top: var(--space-2);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.overall {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+}
+
+.overallLabel {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.overallScore {
+  color: var(--color-text-primary);
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.metrics {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.sectionTitle {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-xl);
+}
+
+.metricGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.auditCard {
+  display: flex;
+  min-width: 0;
+  min-height: 180px;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.cardLabel {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}
+
+.cardText {
+  margin-top: var(--space-2);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-normal);
+}
+
+.auditLink {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-accent);
+  font-weight: 600;
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
+}
+
+.auditLink:hover {
+  color: var(--color-accent-hover);
+  transform: translateX(2px);
+}
+
+.emptyState {
+  padding: var(--space-10);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.emptyState h1,
+.emptyState h2 {
+  color: var(--color-text-primary);
+}
+
+.emptyState p {
+  margin-top: var(--space-2);
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 720px) {
+  .header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .overall {
+    align-items: flex-start;
+  }
+
+  .metricGrid {
+    grid-template-columns: 1fr;
+  }
+}
