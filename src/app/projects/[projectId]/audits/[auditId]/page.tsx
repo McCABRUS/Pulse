@@ -1,4 +1,5 @@
 import { getAudit } from "@/application/queries/getAudit";
+import { AuditDetail } from "@/components/audit-detail/AuditDetail";
 import { audits } from "@/infrastructure/data/audits";
 import { InMemoryAuditRepository } from "@/infrastructure/repositories/InMemoryAuditRepository";
 
@@ -13,20 +14,12 @@ type AuditPageProps = {
 
 export default async function AuditPage({ params }: AuditPageProps) {
   const { auditId } = await params;
+
   const result = await getAudit(repository, auditId);
 
   if (result.status === "not-found") {
-    return (
-      <main>
-        <h1>Audit not found</h1>
-      </main>
-    );
+    return <AuditDetail audit={null} />;
   }
 
-  return (
-    <main>
-      <h1>Audit Detail</h1>
-      <p>{result.audit.overallScore}</p>
-    </main>
-  );
+  return <AuditDetail audit={result.audit} />;
 }
