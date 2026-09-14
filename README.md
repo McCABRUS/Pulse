@@ -2,6 +2,8 @@
 
 Pulse is a personal web quality platform for exploring how a modern frontend application can collect, validate, compare, and present technical quality signals for a web project.
 
+**Live demo:** [https://pulse-zeta-smoky.vercel.app/](https://pulse-zeta-smoky.vercel.app/)
+
 The application provides project overviews, point-in-time audits, audit comparison, findings, and APIs for accessing the same domain data through different transport layers.
 
 ## Overview
@@ -185,6 +187,7 @@ The validation layer is intentionally kept in infrastructure so the application 
 - Zod
 - Lighthouse
 - GitHub Actions
+- Vercel
 
 ## Testing
 
@@ -232,6 +235,16 @@ Speed Index 0.9 s
 Lighthouse is also available as an automated quality gate.
 
 Generated Lighthouse reports are kept out of version control.
+
+## Deployment
+
+Pulse is deployed to Vercel and connected to the GitHub repository for production deployments.
+
+Live application:
+
+```text
+https://pulse-zeta-smoky.vercel.app/
+```
 
 ## Development
 
