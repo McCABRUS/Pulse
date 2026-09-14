@@ -11,7 +11,7 @@ The architecture must:
 - support REST and GraphQL with explicit responsibilities;
 - make core business rules independently testable;
 - allow deterministic data sources for the MVP;
-- make future external audit integrations possible without coupling them to the UI;
+- make external audit integrations possible without coupling them to the UI;
 - preserve a clear boundary between server and client code;
 - avoid unnecessary abstraction or infrastructure.
 
@@ -87,6 +87,8 @@ Examples:
 
 Application services coordinate domain behavior and infrastructure dependencies.
 
+The application layer should consume domain models and stable ports/interfaces, not provider-specific DTOs or infrastructure-specific schema libraries.
+
 ### Domain
 
 Responsible for business concepts and rules.
@@ -101,7 +103,7 @@ Examples:
 - metric comparison;
 - severity classification.
 
-The domain layer must not depend on React, Next.js, HTTP, GraphQL, or database-specific APIs.
+The domain layer must not depend on React, Next.js, HTTP, GraphQL, Zod, or database-specific APIs.
 
 ### Infrastructure
 
@@ -113,8 +115,10 @@ Examples:
 - GraphQL resolvers;
 - repositories;
 - deterministic data source;
-- future external audit adapters;
+- external audit adapters;
 - runtime schema validation.
+
+Provider-specific validation and mapping belong here.
 
 ---
 
@@ -124,18 +128,9 @@ Pulse uses the Next.js App Router.
 
 The application should prefer Server Components for read-only UI and data composition where practical.
 
-Client Components should be introduced when interaction requires client-side behavior, such as:
-
-- interactive controls;
-- dialogs;
-- filtering;
-- comparison selection;
-- charts or visualizations;
-- browser APIs.
+Client Components should be introduced when interaction requires client-side behavior.
 
 The client boundary should remain as small as practical.
-
-Server and client responsibilities must be explicit.
 
 ---
 
@@ -153,12 +148,14 @@ src/
 │   └── services/
 ├── application/
 │   ├── use-cases/
+│   ├── queries/
 │   └── ports/
 ├── infrastructure/
 │   ├── api/
 │   ├── graphql/
 │   ├── repositories/
 │   ├── adapters/
+│   ├── data/
 │   └── validation/
 └── ...
 ```
@@ -175,59 +172,23 @@ The initial domain consists of:
 
 Represents a monitored web experience.
 
-Core information:
-
-- id;
-- name;
-- latest audit;
-- audit history.
-
 ### Audit
 
 Represents a point-in-time assessment.
-
-Contains:
-
-- id;
-- project id;
-- timestamp;
-- overall score;
-- performance result;
-- accessibility result;
-- API-health result;
-- findings.
 
 ### Metric
 
 Represents a measurable technical signal.
 
-Examples:
-
-- LCP;
-- CLS;
-- INP;
-- availability;
-- latency;
-- error rate.
-
 ### Finding
 
 Represents a technical issue identified by an audit.
-
-Contains:
-
-- category;
-- severity;
-- title;
-- description;
-- evidence;
-- recommendation.
 
 ### Recommendation
 
 Represents an actionable remediation associated with a finding.
 
-The domain model should remain independent of the API transport format.
+The domain model should remain independent of API transport and provider-specific payload formats.
 
 ---
 
@@ -245,11 +206,7 @@ POST /api/audits
 POST /api/audits/:id/compare
 ```
 
-The exact endpoints may change during implementation if a better REST boundary is identified.
-
-REST handlers are infrastructure concerns.
-
-They must:
+REST handlers must:
 
 1. receive transport data;
 2. validate input;
@@ -265,49 +222,13 @@ Business rules must not be implemented directly inside route handlers.
 
 GraphQL is used for flexible read composition.
 
-The first target is the project overview and similarly composed read views.
-
-Conceptually:
-
-```graphql
-query ProjectOverview($id: ID!) {
-  project(id: $id) {
-    id
-    name
-    healthScore
-    latestAudit {
-      id
-      createdAt
-      performance {
-        score
-        lcp
-        cls
-        inp
-      }
-      accessibility {
-        score
-        violations
-      }
-      apiHealth {
-        score
-        availability
-        latency
-        errorRate
-      }
-    }
-  }
-}
-```
-
-GraphQL should expose domain-oriented types rather than transport-specific persistence structures.
+GraphQL should expose domain-oriented types rather than provider-specific or persistence-specific structures.
 
 GraphQL resolvers should delegate to application services rather than contain business logic.
 
 ---
 
 ## 9. REST and GraphQL Boundary
-
-The two API styles exist because they solve different problems.
 
 REST is preferred for:
 
@@ -328,31 +249,38 @@ Both transports should call the same application/domain behavior.
 
 ---
 
-## 10. Validation
+## 10. Validation and External Ingestion
 
 Data crossing an external boundary must be validated at runtime.
 
-The intended flow is:
+The intended external ingestion flow is:
 
 ```text
-Transport data
+External provider payload
       |
       v
-Runtime schema validation
+Infrastructure validation
       |
       v
-Typed DTO
+Validated provider DTO
       |
       v
-Application use case
+Infrastructure Adapter
       |
       v
-Domain model
+Pulse domain model
+      |
+      v
+Application layer
 ```
 
-TypeScript types alone are not considered sufficient protection for untrusted runtime data.
+The validation library is an infrastructure concern.
 
-The validation library will be selected during stack definition.
+For the current MVP, Zod is used to validate provider-shaped audit records.
+
+The application and domain layers must not import Zod schemas directly.
+
+TypeScript types alone are not sufficient protection for untrusted runtime data.
 
 ---
 
@@ -367,9 +295,7 @@ The application must distinguish:
 
 Transport layers should map these failures to appropriate HTTP or GraphQL error representations.
 
-The UI must not expose internal implementation details or stack traces.
-
-User-facing error messages should explain what happened and, where useful, what the user can do next.
+External ingestion should reject malformed provider payloads before attempting domain mapping.
 
 ---
 
@@ -381,35 +307,91 @@ Only three patterns are currently approved for the MVP.
 
 Used when different scoring rules need a common interface.
 
-Example:
-
-```text
-PerformanceScoreStrategy
-AccessibilityScoreStrategy
-ApiHealthScoreStrategy
-```
-
 ### Adapter
 
-Used to translate external audit-provider data into the Pulse domain model.
+Used to translate external audit-provider representations into Pulse domain models.
 
-The MVP may only contain the deterministic source adapter.
+The adapter boundary is infrastructure-only.
 
-A future Lighthouse integration can reuse the same boundary.
+The adapter should receive a validated provider DTO and produce a domain entity.
+
+It should not:
+
+- perform HTTP;
+- own runtime schema validation;
+- call UI code;
+- contain business scoring rules.
 
 ### Repository
 
 Used to isolate data persistence and retrieval from application/domain logic.
 
-The MVP can use an in-memory or deterministic repository.
-
-A database-backed implementation can be introduced later without changing domain rules.
-
 Any additional pattern requires explicit justification.
 
 ---
 
-## 13. Testing Architecture
+## 13. Data Source and Adapter Boundaries
+
+An external audit source may use a provider-specific structure such as:
+
+```text
+ExternalAuditRecord
+- audit_id
+- project_id
+- created_at
+- score.overall
+- score.performance
+- score.accessibility
+- score.api
+```
+
+Pulse requires:
+
+```text
+Audit
+- id
+- projectId
+- createdAt
+- overallScore
+- performance
+- accessibility
+- apiHealth
+- findings
+```
+
+The mapping belongs in infrastructure.
+
+The application layer consumes only the Pulse domain model.
+
+This makes a future provider replaceable without changing product behavior.
+
+### Ingestion boundary
+
+The ingestion boundary owns the composition:
+
+```text
+unknown
+  |
+  v
+provider schema validation
+  |
+  v
+validated provider DTO
+  |
+  v
+adapter.toDomain()
+  |
+  v
+Audit
+```
+
+This composition belongs in infrastructure because it combines provider-specific validation and provider-specific mapping.
+
+The application layer should receive an already validated domain object or a stable port result, not raw external input.
+
+---
+
+## 14. Testing Architecture
 
 Testing is organized by responsibility.
 
@@ -420,6 +402,8 @@ Unit
   +-- Scoring
   +-- Comparison
   +-- Validation transformations
+  +-- Adapter mapping
+  +-- Ingestion boundary
 
 Integration
   |
@@ -427,6 +411,7 @@ Integration
   +-- GraphQL resolvers
   +-- Application services
   +-- Repositories
+  +-- Adapter boundaries
 
 Component / Accessibility
   |
@@ -445,9 +430,9 @@ Tests should verify behavior rather than implementation details.
 
 ---
 
-## 14. Accessibility Architecture
+## 15. Accessibility Architecture
 
-Accessibility is treated as a cross-cutting product requirement.
+Accessibility is a cross-cutting product requirement.
 
 The architecture must support:
 
@@ -460,13 +445,9 @@ The architecture must support:
 - live-region behavior;
 - reduced-motion handling.
 
-Reusable components should establish accessible defaults.
-
-Accessibility violations identified through automated tooling should be treated as defects when they affect supported user journeys.
-
 ---
 
-## 15. Performance Strategy
+## 16. Performance Strategy
 
 Performance should be considered at architecture level.
 
@@ -476,20 +457,37 @@ Initial principles:
 - minimize client-side JavaScript;
 - keep client boundaries small;
 - avoid unnecessary dependencies;
-- avoid loading large visualization libraries until needed;
-- avoid unnecessary network requests;
-- use stable data shapes;
 - measure before and after meaningful optimizations.
-
-The application will be evaluated with Lighthouse and Core Web Vitals.
-
-No performance optimization should be added only to improve a synthetic score.
 
 ---
 
-## 16. Data Flow
+## 17. Data Flow
 
-A typical read flow is:
+For external audit ingestion:
+
+```text
+External provider
+      |
+      v
+Provider validation
+      |
+      v
+Provider DTO
+      |
+      v
+Adapter
+      |
+      v
+Domain model
+      |
+      v
+Application use case
+      |
+      v
+Presentation / API
+```
+
+For normal application reads:
 
 ```text
 User
@@ -498,99 +496,74 @@ User
 Next.js route
   |
   v
-Server Component / Client Component
-  |
-  v
-GraphQL or REST boundary
-  |
-  v
 Application use case
   |
   v
 Repository / Adapter
   |
   v
-Validated data
-  |
-  v
 Domain model
   |
   v
-View model / response
-  |
-  v
-UI
+UI or API response
 ```
-
-For domain-driven operations, the domain rules must execute before presentation formatting.
 
 ---
 
-## 17. Deployment
+## 18. Deployment
 
 The initial deployment target should be a managed Next.js-compatible platform.
 
-The project should produce:
+The project should produce reproducible builds and automated checks through GitHub Actions.
 
-- reproducible builds;
-- a production build;
-- automated checks through GitHub Actions.
-
-Containerization is not a requirement for the MVP.
-
-Docker should only be added if a concrete architectural or deployment need justifies it.
+Docker is not a requirement for the MVP.
 
 ---
 
-## 18. Security Considerations
+## 19. Security Considerations
 
-The MVP is not an authenticated multi-user system, but the architecture must still consider:
+The MVP should consider:
 
 - validation of external input;
 - safe error handling;
-- avoiding secret exposure to client bundles;
+- avoiding secret exposure;
 - safe rendering of evidence and descriptions;
-- avoiding direct trust of arbitrary API payloads;
 - dependency hygiene.
 
-Any future external URL fetching or remote audit execution must be reviewed separately for SSRF and related server-side risks.
+Any future external URL fetching or remote audit execution must be reviewed separately for SSRF and related risks.
 
 ---
 
-## 19. Architectural Trade-offs
+## 20. Architectural Trade-offs
 
 ### Deterministic data instead of live audit execution
 
 Chosen because it keeps the MVP small and reproducible.
 
-Trade-off:
-
-The MVP does not demonstrate integration with a real Lighthouse execution pipeline.
-
 ### Separate domain layer
 
-Chosen to make business rules testable and independent of UI/API frameworks.
-
-Trade-off:
-
-Adds structure to a small application.
+Chosen to make business rules testable and framework-independent.
 
 ### REST plus GraphQL
 
-Chosen because the role explicitly values API architecture and because the two interfaces serve different consumption patterns.
+Chosen because both solve different API problems and are relevant to the target role.
+
+### Adapter boundary for external audit data
+
+Chosen because external providers have their own contracts and Pulse needs a stable domain model.
 
 Trade-off:
 
-Two transport models increase maintenance cost.
+Adds a translation layer, but isolates provider-specific change and makes external integration testable.
 
-This is acceptable because both are intentionally scoped and share the same application/domain logic.
+### Validation + adapter as infrastructure
+
+Chosen to keep provider-specific schema libraries and payload formats out of the application and domain layers.
+
+Trade-off:
+
+Adds an ingestion boundary, but preserves clean domain/application dependencies.
 
 ### No database initially
 
 Chosen to keep the MVP focused on frontend and application architecture.
-
-Trade-off:
-
-Persistence is simulated through deterministic repositories.
-
-A database can be introduced only if later requirements justify it.
