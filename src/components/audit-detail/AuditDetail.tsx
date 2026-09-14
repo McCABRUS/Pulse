@@ -4,9 +4,13 @@ import type { Audit } from "@/domain/entities/Audit";
 
 type AuditDetailProps = {
   audit: Audit | null;
+  hasPreviousAudit?: boolean;
 };
 
-export function AuditDetail({ audit }: AuditDetailProps) {
+export function AuditDetail({
+  audit,
+  hasPreviousAudit = false,
+}: AuditDetailProps) {
   if (!audit) {
     return (
       <main>
@@ -32,10 +36,21 @@ export function AuditDetail({ audit }: AuditDetailProps) {
           <p className={styles.date}>{formattedDate}</p>
         </div>
 
-        <div className={styles.overall}>
-          <span className={styles.overallLabel}>Overall Health</span>
+        <div className={styles.headerActions}>
+          {hasPreviousAudit && (
+            <a
+              className={styles.compareLink}
+              href={`/projects/${audit.projectId}/audits/compare/${audit.id}/select`}
+            >
+              Compare with another audit
+            </a>
+          )}
 
-          <span className={styles.overallScore}>{audit.overallScore}</span>
+          <div className={styles.overall}>
+            <span className={styles.overallLabel}>Overall Health</span>
+
+            <span className={styles.overallScore}>{audit.overallScore}</span>
+          </div>
         </div>
       </header>
 

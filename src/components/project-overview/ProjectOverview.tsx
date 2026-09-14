@@ -1,12 +1,17 @@
 import { QualityScore } from "@/components/quality-score/QualityScore";
 import type { Project } from "@/domain/entities/Project";
 import styles from "./ProjectOverview.module.css";
+import type { Audit } from "@/domain/entities/Audit";
 
 type ProjectOverviewProps = {
   project: Project | null;
+  audits?: Audit[];
 };
 
-export function ProjectOverview({ project }: ProjectOverviewProps) {
+export function ProjectOverview({
+  project,
+  audits = [],
+}: ProjectOverviewProps) {
   if (!project) {
     return (
       <main className={styles.page}>
@@ -97,6 +102,48 @@ export function ProjectOverview({ project }: ProjectOverviewProps) {
           <p>This project does not have an audit available.</p>
         </section>
       )}
+      <section
+        aria-labelledby="audit-history-heading"
+        className={styles.section}
+      >
+        <div className={styles.sectionHeader}>
+          <div>
+            <p className={styles.cardLabel}>History</p>
+
+            <h2 id="audit-history-heading">Audit History</h2>
+          </div>
+        </div>
+
+        <div className={styles.auditHistory}>
+          {audits.map((audit) => {
+            const date = new Intl.DateTimeFormat("en-US", {
+              dateStyle: "long",
+              timeZone: "UTC",
+            }).format(new Date(audit.createdAt));
+
+            return (
+              <article key={audit.id} className={styles.auditHistoryItem}>
+                <div>
+                  <p className={styles.auditHistoryDate}>{date}</p>
+
+                  <p className={styles.auditHistoryScore}>
+                    Score: {audit.overallScore}
+                  </p>
+                </div>
+
+                <a
+                  className={styles.auditLink}
+                  href={`/projects/${audit.projectId}/audits/${audit.id}`}
+                  aria-label={`View audit ${audit.id}`}
+                >
+                  View audit
+                  <span aria-hidden="true">→</span>
+                </a>
+              </article>
+            );
+          })}
+        </div>
+      </section>
     </main>
   );
 }

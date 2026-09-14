@@ -71,6 +71,7 @@ describe("compareAudits query", () => {
 
         return null;
       },
+      getByProjectId: async () => [],
     };
 
     const result = await compareAudits(repository, "audit-1", "audit-2");
@@ -109,6 +110,7 @@ describe("compareAudits query", () => {
   it("returns not-found when one of the audits does not exist", async () => {
     const repository: AuditRepository = {
       getById: async (id) => (id === "audit-1" ? previousAudit : null),
+      getByProjectId: async () => [],
     };
 
     const result = await compareAudits(repository, "audit-1", "unknown");

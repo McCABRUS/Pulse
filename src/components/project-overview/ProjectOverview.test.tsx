@@ -114,4 +114,47 @@ describe("ProjectOverview", () => {
       screen.getByText("This project does not have an audit available."),
     ).toBeInTheDocument();
   });
+
+  it("renders the audit history", () => {
+    render(
+      <ProjectOverview
+        project={project}
+        audits={[
+          {
+            ...project.latestAudit!,
+            id: "audit-1",
+            createdAt: "2026-09-13T14:32:00Z",
+            overallScore: 92,
+          },
+          {
+            ...project.latestAudit!,
+            id: "audit-2",
+            createdAt: "2026-09-14T14:32:00Z",
+            overallScore: 90,
+          },
+        ]}
+      />,
+    );
+
+    expect(
+      screen.getByRole("heading", {
+        name: /audit history/i,
+      }),
+    ).toBeInTheDocument();
+
+    expect(screen.getByText("September 14, 2026")).toBeInTheDocument();
+    expect(screen.getByText("September 13, 2026")).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("link", {
+        name: /view audit.*audit-2/i,
+      }),
+    ).toHaveAttribute("href", "/projects/project-1/audits/audit-2");
+
+    expect(
+      screen.getByRole("link", {
+        name: /view audit.*audit-1/i,
+      }),
+    ).toHaveAttribute("href", "/projects/project-1/audits/audit-1");
+  });
 });

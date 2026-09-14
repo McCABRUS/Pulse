@@ -100,4 +100,24 @@ describe("AuditDetail", () => {
       screen.getByRole("heading", { name: /audit not found/i }),
     ).toBeInTheDocument();
   });
+
+  it("provides a way to compare the current audit", () => {
+    render(<AuditDetail audit={audit} hasPreviousAudit />);
+
+    expect(
+      screen.getByRole("link", {
+        name: /compare with another audit/i,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("does not provide comparison when no previous audit exists", () => {
+    render(<AuditDetail audit={audit} hasPreviousAudit={false} />);
+
+    expect(
+      screen.queryByRole("link", {
+        name: /compare with another audit/i,
+      }),
+    ).not.toBeInTheDocument();
+  });
 });

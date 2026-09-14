@@ -130,6 +130,43 @@
   color: var(--color-text-secondary);
 }
 
+.auditHistory {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.auditHistoryItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.auditHistoryDate {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.auditHistoryScore {
+  margin-top: var(--space-1);
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 640px) {
+  .auditHistoryItem {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .auditLink {
+    width: 100%;
+  }
+}
+
 @media (max-width: 720px) {
   .header {
     align-items: flex-start;

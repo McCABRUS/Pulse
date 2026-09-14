@@ -34,6 +34,7 @@ describe("getAudit", () => {
   it("returns an audit when the repository finds it", async () => {
     const repository: AuditRepository = {
       getById: async () => audit,
+      getByProjectId: async () => [],
     };
 
     const result = await getAudit(repository, "audit-1");
@@ -47,6 +48,7 @@ describe("getAudit", () => {
   it("returns not-found when the repository does not find the audit", async () => {
     const repository: AuditRepository = {
       getById: async () => null,
+      getByProjectId: async () => [],
     };
 
     const result = await getAudit(repository, "unknown");

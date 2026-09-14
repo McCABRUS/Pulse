@@ -7,11 +7,15 @@ test("displays the project overview", async ({ page }) => {
     page.getByRole("heading", { name: "Acme Commerce" }),
   ).toBeVisible();
 
-  await expect(page.getByText("92")).toBeVisible();
-  await expect(page.getByText("94")).toBeVisible();
-  await expect(page.getByText("98")).toBeVisible();
-  await expect(page.getByText("84")).toBeVisible();
-  await expect(page.getByText("September 13, 2026")).toBeVisible();
+  await expect(page.getByText("92", { exact: true })).toBeVisible();
+  await expect(page.getByText("94", { exact: true })).toBeVisible();
+  await expect(page.getByText("98", { exact: true })).toBeVisible();
+  await expect(page.getByText("84", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("September 13, 2026", {
+      exact: true,
+    }),
+  ).toBeVisible();
 });
 
 test("displays a not-found state for an unknown project", async ({ page }) => {

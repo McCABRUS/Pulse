@@ -1,4 +1,5 @@
 import { getAudit } from "@/application/queries/getAudit";
+import { getProjectAudits } from "@/application/queries/getProjectAudits";
 import { AuditDetail } from "@/components/audit-detail/AuditDetail";
 import { audits } from "@/infrastructure/data/audits";
 import { InMemoryAuditRepository } from "@/infrastructure/repositories/InMemoryAuditRepository";
@@ -13,13 +14,27 @@ type AuditPageProps = {
 };
 
 export default async function AuditPage({ params }: AuditPageProps) {
-  const { auditId } = await params;
+  const { projectId, auditId } = await params;
 
-  const result = await getAudit(repository, auditId);
+  const [auditResult, projectAudits] = await Promise.all([
+    getAudit(repository, auditId),
+    getProjectAudits(repository, projectId),
+  ]);
 
-  if (result.status === "not-found") {
+  if (auditResult.status === "not-found") {
     return <AuditDetail audit={null} />;
   }
 
-  return <AuditDetail audit={result.audit} />;
+  const currentAudit = auditResult.audit;
+
+  const hasPreviousAudit = projectAudits.some(
+    (projectAudit) =>
+      projectAudit.id !== currentAudit.id &&
+      new Date(projectAudit.createdAt).getTime() <
+        new Date(currentAudit.createdAt).getTime(),
+  );
+
+  return (
+    <AuditDetail audit={currentAudit} hasPreviousAudit={hasPreviousAudit} />
+  );
 }
