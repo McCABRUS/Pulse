@@ -97,8 +97,8 @@
   margin-top: var(--space-3);
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-pill);
-  color: var(--color-danger);
-  background: var(--color-danger-bg);
+  color: #b91c1c;
+  background: #fef2f2;
   font-size: var(--font-size-xs);
   font-weight: 700;
   text-transform: capitalize;
