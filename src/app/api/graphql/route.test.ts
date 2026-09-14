@@ -67,4 +67,48 @@ describe("POST /api/graphql", () => {
     expect(body.errors).toBeDefined();
     expect(body.data).toBeUndefined();
   });
+
+  it("returns 400 for an invalid GraphQL request body", async () => {
+    const request = new Request("http://localhost/api/graphql", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        query: 123,
+      }),
+    });
+
+    const response = await POST(request);
+
+    expect(response.status).toBe(400);
+
+    await expect(response.json()).resolves.toEqual({
+      error: {
+        code: "INVALID_GRAPHQL_REQUEST",
+        message: "The GraphQL request body is invalid.",
+      },
+    });
+  });
+
+  it("returns 400 for malformed JSON", async () => {
+    const request = new Request("http://localhost/api/graphql", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: '{"query":',
+    });
+
+    const response = await POST(request);
+
+    expect(response.status).toBe(400);
+
+    await expect(response.json()).resolves.toEqual({
+      error: {
+        code: "INVALID_JSON",
+        message: "The request body contains invalid JSON.",
+      },
+    });
+  });
 });
