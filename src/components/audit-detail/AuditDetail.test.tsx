@@ -90,7 +90,7 @@ describe("AuditDetail", () => {
       }),
     ).toBeInTheDocument();
 
-    expect(screen.getByText("Serious")).toBeInTheDocument();
+    expect(screen.getByText("serious")).toBeInTheDocument();
   });
 
   it("renders a not-found state when the audit does not exist", () => {
