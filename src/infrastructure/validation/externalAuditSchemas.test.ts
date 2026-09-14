@@ -13,6 +13,24 @@ describe("externalAuditRecordSchema", () => {
         accessibility: 98,
         api: 84,
       },
+      metrics: {
+        performance: {
+          lcp: 1800,
+          cls: 0.02,
+          inp: 120,
+        },
+        accessibility: {
+          critical: 0,
+          serious: 1,
+          moderate: 1,
+          minor: 0,
+        },
+        apiHealth: {
+          availability: 99.95,
+          latency: 180,
+          errorRate: 0.5,
+        },
+      },
     });
 
     expect(result.success).toBe(true);

@@ -5,7 +5,7 @@ describe("ExternalAuditIngestionAdapter", () => {
   it("validates and maps a valid external audit payload", () => {
     const adapter = new ExternalAuditIngestionAdapter();
 
-    const result = adapter.toDomain({
+    const payload = {
       audit_id: "external-001",
       project_id: "project-1",
       created_at: "2026-09-13T14:32:00Z",
@@ -15,7 +15,27 @@ describe("ExternalAuditIngestionAdapter", () => {
         accessibility: 98,
         api: 84,
       },
-    });
+      metrics: {
+        performance: {
+          lcp: 1800,
+          cls: 0.02,
+          inp: 120,
+        },
+        accessibility: {
+          critical: 0,
+          serious: 1,
+          moderate: 1,
+          minor: 0,
+        },
+        apiHealth: {
+          availability: 99.95,
+          latency: 180,
+          errorRate: 0.5,
+        },
+      },
+    };
+
+    const result = adapter.toDomain(payload);
 
     expect(result).toEqual({
       id: "external-001",
@@ -23,12 +43,22 @@ describe("ExternalAuditIngestionAdapter", () => {
       createdAt: "2026-09-13T14:32:00Z",
       overallScore: 92,
       performance: {
+        lcp: 1800,
+        cls: 0.02,
+        inp: 120,
         score: 94,
       },
       accessibility: {
+        critical: 0,
+        serious: 1,
+        moderate: 1,
+        minor: 0,
         score: 98,
       },
       apiHealth: {
+        availability: 99.95,
+        latency: 180,
+        errorRate: 0.5,
         score: 84,
       },
       findings: [],
